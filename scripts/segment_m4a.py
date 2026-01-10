@@ -130,9 +130,9 @@ def write_kaldi_dir(
     utt2spk_path = output_dir / "utt2spk"
     spk2utt_path = output_dir / "spk2utt"
 
-    with wav_scp_path.open("w", encoding="utf-8") as wav_f, \
-        text_path.open("w", encoding="utf-8") as text_f, \
-        utt2spk_path.open("w", encoding="utf-8") as u2s_f:
+    with wav_scp_path.open("w", encoding="utf-8") as wav_f, text_path.open(
+        "w", encoding="utf-8"
+    ) as text_f, utt2spk_path.open("w", encoding="utf-8") as u2s_f:
         for utt_id, wav_path in wav_entries:
             wav_f.write(f"{utt_id} {wav_path}\n")
             text_f.write(f"{utt_id} {texts[utt_id]}\n")
@@ -150,7 +150,9 @@ def write_kaldi_dir(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Segment m4a by diarization JSON")
     parser.add_argument("--audio-dir", required=True, help="Directory with m4a files")
-    parser.add_argument("--diar-dir", required=True, help="Directory with JSON diarization")
+    parser.add_argument(
+        "--diar-dir", required=True, help="Directory with JSON diarization"
+    )
     parser.add_argument("--output-dir", required=True, help="Output Kaldi data dir")
     parser.add_argument(
         "--segments-dir",

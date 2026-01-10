@@ -30,7 +30,9 @@ def load_audio(wav_spec: str, target_sr: int) -> np.ndarray:
         waveform = np.mean(waveform, axis=1)
 
     if sample_rate != target_sr:
-        resampler = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=target_sr)
+        resampler = torchaudio.transforms.Resample(
+            orig_freq=sample_rate, new_freq=target_sr
+        )
         waveform = resampler(torch.from_numpy(waveform)).numpy()
 
     return waveform.astype("float32")

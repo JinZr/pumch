@@ -20,15 +20,21 @@ from pumch_asr.utils.kaldi_io import write_kaldi_feats
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Extract encoder features to Kaldi ark")
+    parser = argparse.ArgumentParser(
+        description="Extract encoder features to Kaldi ark"
+    )
     parser.add_argument("--data-dir", required=True, help="Kaldi data dir with wav.scp")
     parser.add_argument("--model-dir", required=True, help="Fine-tuned model directory")
     parser.add_argument("--ark", required=True, help="Output feats.ark")
     parser.add_argument("--scp", required=True, help="Output feats.scp")
-    parser.add_argument("--layer", type=int, default=-1, help="Hidden layer index (default: last)")
+    parser.add_argument(
+        "--layer", type=int, default=-1, help="Hidden layer index (default: last)"
+    )
     parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument("--num-workers", type=int, default=2)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument(
+        "--device", default="cuda" if torch.cuda.is_available() else "cpu"
+    )
     return parser.parse_args()
 
 

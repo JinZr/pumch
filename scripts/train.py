@@ -18,13 +18,21 @@ from pumch_asr.models.loader import (
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="CTC fine-tuning for SSL speech models")
-    parser.add_argument("--train-dir", required=True, help="Kaldi data dir with wav.scp/text")
+    parser = argparse.ArgumentParser(
+        description="CTC fine-tuning for SSL speech models"
+    )
+    parser.add_argument(
+        "--train-dir", required=True, help="Kaldi data dir with wav.scp/text"
+    )
     parser.add_argument("--valid-dir", help="Optional validation Kaldi data dir")
-    parser.add_argument("--model-name", required=True, help="Base HF model name or path")
+    parser.add_argument(
+        "--model-name", required=True, help="Base HF model name or path"
+    )
     parser.add_argument("--vocab", required=True, help="Path to vocab.json")
     parser.add_argument("--output-dir", required=True, help="Output directory")
-    parser.add_argument("--lowercase", action="store_true", help="Lowercase transcripts")
+    parser.add_argument(
+        "--lowercase", action="store_true", help="Lowercase transcripts"
+    )
     parser.add_argument("--freeze-feature-encoder", action="store_true")
     parser.add_argument("--ctc-zero-infinity", action="store_true")
     parser.add_argument(

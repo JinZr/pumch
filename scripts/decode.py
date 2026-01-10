@@ -22,7 +22,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output", required=True, help="Output hypothesis text file")
     parser.add_argument("--batch-size", type=int, default=4)
     parser.add_argument("--num-workers", type=int, default=2)
-    parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument(
+        "--device", default="cuda" if torch.cuda.is_available() else "cpu"
+    )
     return parser.parse_args()
 
 

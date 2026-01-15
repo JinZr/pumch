@@ -76,6 +76,11 @@ def normalize_rec_id(recording_id: str) -> str:
         recording_id = "rec"
     return re.sub(r"[^A-Za-z0-9_\-]", "_", recording_id)
 
+def make_spk_id(recording_id: str, speaker: str) -> str:
+    rec_id = normalize_rec_id(recording_id)
+    spk = normalize_spk_id(speaker)
+    return f"{rec_id}-{spk}"
+
 
 def safe_utt_id(recording_id: str, start: float, end: float) -> str:
     start_ms = int(round(start * 1000))
@@ -202,13 +207,14 @@ def main() -> None:
             continue
 
         recording_id = json_path.stem
-        spk_id = normalize_spk_id(recording_id)
         audio_path = find_audio_for_recording(audio_dir, recording_id)
         if audio_path is None:
             print(f"[WARN] Missing audio for recording {recording_id}")
             continue
 
         for seg in segments:
+            speaker = seg.speaker
+            spk_id = make_spk_id(recording_id, speaker)
             utt_id = safe_utt_id(recording_id, seg.start, seg.end)
             wav_path = segments_dir / f"{utt_id}.wav"
             extract_segment_wav(

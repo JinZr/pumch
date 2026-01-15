@@ -77,12 +77,11 @@ def normalize_rec_id(recording_id: str) -> str:
     return re.sub(r"[^A-Za-z0-9_\-]", "_", recording_id)
 
 
-def safe_utt_id(recording_id: str, start: float, end: float, speaker: str) -> str:
+def safe_utt_id(recording_id: str, start: float, end: float) -> str:
     start_ms = int(round(start * 1000))
     end_ms = int(round(end * 1000))
     rec_id = normalize_rec_id(recording_id)
-    spk_id = normalize_spk_id(speaker)
-    base = f"{rec_id}-{spk_id}-{start_ms}-{end_ms}"
+    base = f"{rec_id}-{start_ms}-{end_ms}"
     return re.sub(r"[^A-Za-z0-9_\-]", "_", base)
 
 
@@ -211,8 +210,7 @@ def main() -> None:
             continue
 
         for seg in segments:
-            speaker = normalize_spk_id(seg.speaker)
-            utt_id = safe_utt_id(recording_id, seg.start, seg.end, speaker)
+            utt_id = safe_utt_id(recording_id, seg.start, seg.end)
             wav_path = segments_dir / f"{utt_id}.wav"
             extract_segment_wav(
                 video_path,

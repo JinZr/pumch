@@ -195,7 +195,7 @@ def main() -> None:
             continue
 
         recording_id = json_path.stem
-        spk_id = recording_id
+        spk_id = normalize_spk_id(recording_id)
         audio_path = find_audio_for_recording(audio_dir, recording_id)
         if audio_path is None:
             print(f"[WARN] Missing audio for recording {recording_id}")

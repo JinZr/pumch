@@ -196,7 +196,7 @@ def main() -> None:
             continue
 
         recording_id = json_path.stem
-        spk_id = recording_id
+        spk_id = normalize_spk_id(recording_id)
         video_path = find_video_for_recording(video_dir, recording_id)
         if video_path is None:
             print(f"[WARN] Missing video for recording {recording_id}")

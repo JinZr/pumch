@@ -76,8 +76,14 @@ def normalize_rec_id(recording_id: str) -> str:
         recording_id = "rec"
     return re.sub(r"[^A-Za-z0-9_\-]", "_", recording_id)
 
+def normalize_rec_id_for_spk(recording_id: str) -> str:
+    recording_id = recording_id.strip()
+    if not recording_id:
+        recording_id = "rec"
+    return re.sub(r"\s+", "_", recording_id)
+
 def make_spk_id(recording_id: str, speaker: str) -> str:
-    rec_id = normalize_rec_id(recording_id)
+    rec_id = normalize_rec_id_for_spk(recording_id)
     spk = normalize_spk_id(speaker)
     return f"{rec_id}-{spk}"
 

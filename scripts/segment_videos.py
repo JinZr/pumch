@@ -196,6 +196,7 @@ def main() -> None:
             continue
 
         recording_id = json_path.stem
+        spk_id = recording_id
         video_path = find_video_for_recording(video_dir, recording_id)
         if video_path is None:
             print(f"[WARN] Missing video for recording {recording_id}")
@@ -213,7 +214,7 @@ def main() -> None:
                 overwrite=args.overwrite,
             )
             wav_entries.append((utt_id, wav_path.resolve()))
-            utt2spk[utt_id] = speaker
+            utt2spk[utt_id] = spk_id
             transcript = (seg.transcript or "").strip()
             texts[utt_id] = transcript if transcript else args.text_placeholder
 

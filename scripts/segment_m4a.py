@@ -70,11 +70,19 @@ def normalize_spk_id(speaker: str) -> str:
         speaker = "spk"
     return re.sub(r"[^A-Za-z0-9_\-]", "_", speaker)
 
+def normalize_rec_id(recording_id: str) -> str:
+    recording_id = recording_id.strip()
+    if not recording_id:
+        recording_id = "rec"
+    return re.sub(r"[^A-Za-z0-9_\-]", "_", recording_id)
+
 
 def safe_utt_id(recording_id: str, start: float, end: float, speaker: str) -> str:
     start_ms = int(round(start * 1000))
     end_ms = int(round(end * 1000))
-    base = f"{recording_id}-{speaker}-{start_ms}-{end_ms}"
+    rec_id = normalize_rec_id(recording_id)
+    spk_id = normalize_spk_id(speaker)
+    base = f"{rec_id}-{spk_id}-{start_ms}-{end_ms}"
     return re.sub(r"[^A-Za-z0-9_\-]", "_", base)
 
 

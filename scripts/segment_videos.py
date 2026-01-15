@@ -214,6 +214,9 @@ def main() -> None:
             continue
 
         for seg in segments:
+            transcript = (seg.transcript or "").strip()
+            if transcript and "name" in transcript:
+                continue
             speaker = seg.speaker
             spk_id = make_spk_id(recording_id, speaker)
             utt_id = safe_utt_id(recording_id, seg.start, seg.end)
@@ -227,7 +230,6 @@ def main() -> None:
             )
             wav_entries.append((utt_id, wav_path.resolve()))
             utt2spk[utt_id] = spk_id
-            transcript = (seg.transcript or "").strip()
             texts[utt_id] = transcript if transcript else args.text_placeholder
 
     write_kaldi_dir(output_dir, wav_entries, utt2spk, texts)

@@ -144,6 +144,38 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def prompt_duplicate_resolution(
+    utt_id: str,
+    existing_dir: Path,
+    existing_wav: str,
+    existing_spk: str,
+    existing_text: str,
+    incoming_dir: Path,
+    incoming_wav: str,
+    incoming_spk: str,
+    incoming_text: str,
+) -> str:
+    print("\n[DUPLICATE UTTERANCE ID]")
+    print(f"utt_id: {utt_id}")
+    print(f"  existing dir: {existing_dir}")
+    print(f"  existing wav: {existing_wav}")
+    print(f"  existing spk: {existing_spk}")
+    print(f"  existing text: {existing_text}")
+    print(f"  incoming dir: {incoming_dir}")
+    print(f"  incoming wav: {incoming_wav}")
+    print(f"  incoming spk: {incoming_spk}")
+    print(f"  incoming text: {incoming_text}")
+    print("Choose action:")
+    print("  1) keep existing (drop incoming)")
+    print("  2) replace existing with incoming")
+    print("  3) rename incoming")
+    while True:
+        choice = input("Enter choice [1/2/3]: ").strip()
+        if choice in {"1", "2", "3"}:
+            return choice
+        print("Invalid choice, please enter 1, 2, or 3.")
+
+
 def main() -> None:
     args = parse_args()
 
@@ -156,23 +188,58 @@ def main() -> None:
     merged_wav: Dict[str, str] = {}
     merged_text: Dict[str, str] = {}
     merged_u2s: Dict[str, str] = {}
-    spk_dirs: Dict[str, set[Path]] = {}
+    utt_sources: Dict[str, Path] = {}
 
     for data_dir in data_dirs:
         wav_scp, text, utt2spk = validate_dir(data_dir)
         if is_batch_ctrl_dir(wav_scp, args.batch_ctrl_token):
             batch_ctrl_candidates.append(data_dir)
 
-        for utt_id in wav_scp:
+        for utt_id, wav_path in wav_scp.items():
+            incoming_text = text[utt_id]
+            incoming_spk = utt2spk[utt_id]
             if utt_id in merged_wav:
-                raise ValueError(f"Duplicate utterance id '{utt_id}' across datasets")
+                existing_text = merged_text[utt_id]
+                if incoming_text == existing_text:
+                    continue
+                choice = prompt_duplicate_resolution(
+                    utt_id=utt_id,
+                    existing_dir=utt_sources[utt_id],
+                    existing_wav=merged_wav[utt_id],
+                    existing_spk=merged_u2s[utt_id],
+                    existing_text=existing_text,
+                    incoming_dir=data_dir,
+                    incoming_wav=wav_path,
+                    incoming_spk=incoming_spk,
+                    incoming_text=incoming_text,
+                )
+                if choice == "1":
+                    continue
+                if choice == "2":
+                    merged_wav[utt_id] = wav_path
+                    merged_text[utt_id] = incoming_text
+                    merged_u2s[utt_id] = incoming_spk
+                    utt_sources[utt_id] = data_dir
+                    continue
+                while True:
+                    new_id = input("Enter new utt_id for incoming entry: ").strip()
+                    if not new_id:
+                        print("utt_id cannot be empty.")
+                        continue
+                    if new_id in merged_wav:
+                        print(f"utt_id '{new_id}' already exists. Choose another.")
+                        continue
+                    merged_wav[new_id] = wav_path
+                    merged_text[new_id] = incoming_text
+                    merged_u2s[new_id] = incoming_spk
+                    utt_sources[new_id] = data_dir
+                    break
+                continue
 
-        for utt_id, spk_id in utt2spk.items():
-            spk_dirs.setdefault(spk_id, set()).add(data_dir)
-
-        merged_wav.update(wav_scp)
-        merged_text.update(text)
-        merged_u2s.update(utt2spk)
+            merged_wav[utt_id] = wav_path
+            merged_text[utt_id] = incoming_text
+            merged_u2s[utt_id] = incoming_spk
+            utt_sources[utt_id] = data_dir
 
     if len(batch_ctrl_candidates) != 1:
         raise ValueError(
@@ -180,6 +247,10 @@ def main() -> None:
             f"{len(batch_ctrl_candidates)}"
         )
     batch_ctrl_dir = batch_ctrl_candidates[0]
+
+    spk_dirs: Dict[str, set[Path]] = {}
+    for utt_id, spk_id in merged_u2s.items():
+        spk_dirs.setdefault(spk_id, set()).add(utt_sources[utt_id])
 
     groups: Dict[str, List[str]] = {"CTRL": [], "CLP": [], "INV": []}
     for spk_id, dirs in spk_dirs.items():

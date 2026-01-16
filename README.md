@@ -88,6 +88,32 @@ python scripts/segment_m4a.py \
 
 Behavior matches `scripts/segment_videos.py` but operates on `.m4a` inputs.
 
+## 7) Merge multiple Kaldi data dirs
+
+```bash
+python scripts/merge_kaldi.py \
+  --data-dirs /path/to/data1 /path/to/data2 \
+  --output-dir /path/to/merged
+```
+
+The script merges `wav.scp`, `text`, and `utt2spk`, rejects duplicate utterance IDs or
+speaker IDs across datasets, and regenerates `spk2utt`.
+
+## 8) Speaker-level 5-fold partitioning
+
+```bash
+python scripts/partition_kaldi_5fold.py \
+  --data-dirs /path/to/data1 /path/to/batch_ctrl /path/to/data3 \
+  --output-dir /path/to/output \
+  --seed 0
+```
+
+The script finds the `batch_ctrl` directory by checking that every `wav.scp` path in
+the directory contains the `batch_ctrl` token. It then groups speakers as CTRL, CLP,
+or INV based on `Speaker_*` in speaker IDs, splits each group into 5 folds by speaker,
+and writes `fold1`–`fold5` with `train`, `test`, `test_ctrl`, `test_inv`, and
+`test_clp` subsets.
+
 ## Notes
 
 - `wav.scp` supports direct wave paths and Kaldi-style pipes ending in `|` (requires the pipe command to output WAV bytes).
